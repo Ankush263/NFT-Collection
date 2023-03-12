@@ -39,7 +39,17 @@ contract collections is ERC721URIStorage {
     bool sold;
   }
 
+  struct Review {
+    uint256 tokenId;
+    address user;
+    uint8 rating;
+    string review;
+  }
+
+  Review[] public reviews;
+
   mapping(uint256 => NFT) private idOfNFT;
+  mapping(uint256 => Review[]) public review;
 
   modifier onlyOwner() {
     require(msg.sender == owner, "Only Owner can call this function");
@@ -56,6 +66,28 @@ contract collections is ERC721URIStorage {
 
   function getListedTokenForId(uint256 _id) public view returns(NFT memory) {
     return idOfNFT[_id];
+  }
+
+  function giveReview(uint256 _id, uint8 _rating, string memory _review) public {
+    require(idOfNFT[_id].owner != msg.sender, "Owner can't review to NFT");
+    require(idOfNFT[_id].seller != msg.sender, "Seller can't review to NFT");
+    require(_id <= _nftIds.current(), "This NFT id does not exists");
+    require(_rating <= 5, "rating should be less then or equal 5");
+    require(_rating >= 1, "rating should be greater then or equal 1");
+
+    Review memory tempReview = Review (
+      _id,
+      msg.sender,
+      _rating,
+      _review
+    );
+    reviews.push(tempReview);
+    review[_id].push(tempReview);
+    
+  }
+
+  function getAllReviewOfANFT(uint256 _id) public view returns(Review[] memory) {
+    return review[_id];
   }
 
   function createNFT(string memory _URI, uint256 _price) public returns(uint256) {

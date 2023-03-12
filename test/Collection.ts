@@ -101,6 +101,23 @@ describe("Token", async () => {
       })
     })
 
+    describe("Review on a NFT", async () => {
+      it("Should create a Review", async () => {
+        await tokenContract.connect(address1).Faucet()
+        await tokenContract.connect(address1).approve(collectionContract.address, 10)
+        await collectionContract.connect(address1).createNFT("ABC", 10)
+        
+        await collectionContract.connect(address2).giveReview(1, 4, "Nice NFT")
+        const review = await collectionContract.getAllReviewOfANFT(1)
+        expect(Number(review[0].tokenId)).to.equal(1)
+        expect(review[0].user).to.equal(address2.address)
+        expect(review[0].user).to.equal(address2.address)
+        expect(Number(review[0].rating)).to.equal(4)
+        expect(review[0].review).to.equal('Nice NFT')
+
+      })
+    })
+
     describe("Buy NFT", async () => {
       
       it("Should buy a NFT", async () => {
